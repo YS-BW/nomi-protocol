@@ -1,0 +1,6 @@
+{
+  "type": "task_delivered",
+  "session_id": "desktop:test-client",
+  "task_id": "task_1",
+  "content": "记得吃饭"
+}

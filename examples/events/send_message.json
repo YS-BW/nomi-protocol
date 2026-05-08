@@ -1,0 +1,6 @@
+{
+  "type": "send_message",
+  "session_id": "desktop:test-client",
+  "content": "你好",
+  "client_id": "desktop-client"
+}

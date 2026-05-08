@@ -1,0 +1,26 @@
+{
+  "name": "nomi-protocol",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "files": [
+    "dist",
+    "remote_protocol.json",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/remote.d.ts",
+      "default": "./dist/remote.js"
+    },
+    "./remote_protocol.json": "./remote_protocol.json"
+  },
+  "types": "./dist/remote.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}

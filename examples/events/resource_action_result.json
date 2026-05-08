@@ -1,0 +1,9 @@
+{
+  "type": "resource_action_result",
+  "session_id": "desktop:test-client",
+  "resource": "task",
+  "action": "task_create_after",
+  "ok": true,
+  "message": "任务创建成功",
+  "task_id": "task_1"
+}

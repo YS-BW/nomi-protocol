@@ -1,0 +1,81 @@
+"""共享 remote 协议层测试。"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+import pytest
+
+from nomi_protocol.remote import (
+    PROTOCOL_VERSION,
+    REMOTE_COMMAND_TYPES,
+    REMOTE_EVENT_TYPES,
+    RemoteCommand,
+    load_remote_protocol_spec,
+)
+
+
+def _read_typescript_const_array(name: str) -> list[str]:
+    """从 TypeScript 协议 spec 文件里读取常量数组。"""
+
+    source = Path("src/spec.ts").read_text(encoding="utf-8")
+    pattern = re.compile(rf"export const {name} = \[(.*?)\] as const;", re.S)
+    match = pattern.search(source)
+    assert match is not None
+    return re.findall(r'"([^"]+)"', match.group(1))
+
+
+def test_remote_protocol_spec_matches_python_contract() -> None:
+    """共享协议 spec 应与 Python 薄封装保持一致。"""
+
+    spec = load_remote_protocol_spec()
+
+    assert PROTOCOL_VERSION == spec["version"]
+    assert list(REMOTE_COMMAND_TYPES) == spec["remoteCommandTypes"]
+    assert list(REMOTE_EVENT_TYPES) == spec["remoteEventTypes"]
+
+
+def test_repo_root_and_python_package_spec_stay_in_sync() -> None:
+    """仓库根协议文件和 Python 包内协议文件应保持一致。"""
+
+    root_spec = json.loads(Path("remote_protocol.json").read_text(encoding="utf-8"))
+    package_spec = json.loads(
+        Path("nomi_protocol/remote_protocol.json").read_text(encoding="utf-8")
+    )
+
+    assert root_spec == package_spec
+
+
+def test_remote_protocol_spec_matches_typescript_contract() -> None:
+    """TypeScript 侧协议常量应与共享 spec 保持一致。"""
+
+    spec = load_remote_protocol_spec()
+
+    assert _read_typescript_const_array("REMOTE_COMMAND_TYPES") == spec["remoteCommandTypes"]
+    assert _read_typescript_const_array("REMOTE_EVENT_TYPES") == spec["remoteEventTypes"]
+
+
+def test_remote_command_accepts_all_known_command_types() -> None:
+    """所有共享命令类型都应能通过 Python 命令模型校验。"""
+
+    for command_type in REMOTE_COMMAND_TYPES:
+        command = RemoteCommand(type=command_type)
+        assert command.type == command_type
+
+
+def test_remote_command_rejects_unknown_command_type() -> None:
+    """未知命令类型不应通过 Python 命令模型校验。"""
+
+    with pytest.raises(Exception):
+        RemoteCommand(type="unknown-command")
+
+
+def test_examples_use_known_protocol_event_types() -> None:
+    """示例 payload 的事件类型应来自共享协议集合。"""
+
+    examples_root = Path("examples/events")
+    for path in examples_root.glob("*.json"):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        assert payload["type"] in REMOTE_EVENT_TYPES or payload["type"] in REMOTE_COMMAND_TYPES

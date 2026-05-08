@@ -1,0 +1,44 @@
+[project]
+name = "nomi-protocol"
+version = "0.1.0"
+description = "Shared remote protocol contract for Nomi core and desktop"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "nomi contributors" }]
+dependencies = ["pydantic>=2.12.0,<3.0.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=9.0.0,<10.0.0", "ruff>=0.1.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["nomi_protocol/**/*.py", "nomi_protocol/**/*.json", "README.md"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["nomi_protocol"]
+
+[tool.hatch.build.targets.wheel.sources]
+"nomi_protocol" = "nomi_protocol"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "nomi_protocol/",
+    "remote_protocol.json",
+    "README.md",
+    "pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
