@@ -9,6 +9,11 @@
 - TypeScript 导出：`nomi-protocol`
 - 协议示例 payload
 
+当前额外约定：
+
+- `ready` 事件会携带 `provider_catalog`
+- desktop 应使用这份 catalog 决定 provider 设置页的只读/可编辑状态
+
 当前不包含：
 
 - runtime
@@ -37,13 +42,13 @@ npm run build
 Python：
 
 ```bash
-pip install "nomi-protocol @ git+https://github.com/YS-BW/nomi-protocol.git@v0.2.0"
+pip install "nomi-protocol @ git+https://github.com/YS-BW/nomi-protocol.git@v0.3.0"
 ```
 
 Node.js：
 
 ```bash
-npm install github:YS-BW/nomi-protocol#v0.2.0
+npm install github:YS-BW/nomi-protocol#v0.3.0
 ```
 
 ## 发布约定

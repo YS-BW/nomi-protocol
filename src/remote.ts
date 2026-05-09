@@ -40,6 +40,23 @@ export interface ConnectionProfile {
   themePreference: ThemePreference;
 }
 
+export interface ProviderCatalogItem {
+  name: string;
+  display_name: string;
+  backend: string;
+  default_api_base?: string | null;
+  api_base_editable: boolean;
+  is_gateway: boolean;
+  is_local: boolean;
+  is_direct: boolean;
+  strip_model_prefix: boolean;
+  supports_prompt_caching: boolean;
+}
+
+export interface ProviderCatalog {
+  providers: ProviderCatalogItem[];
+}
+
 export interface MessageItem {
   id: string;
   kind: MessageKind;
@@ -149,6 +166,7 @@ export interface RemoteEvent {
   content?: string;
   host?: string;
   port?: number;
+  provider_catalog?: ProviderCatalog;
   tool_hint?: boolean;
   resuming?: boolean;
   stop_reason?: string;

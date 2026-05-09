@@ -1,5 +1,33 @@
 {
   "type": "ready",
   "host": "127.0.0.1",
-  "port": 8765
+  "port": 8765,
+  "provider_catalog": {
+    "providers": [
+      {
+        "name": "custom",
+        "display_name": "Custom",
+        "backend": "openai_compat",
+        "default_api_base": null,
+        "api_base_editable": true,
+        "is_gateway": false,
+        "is_local": false,
+        "is_direct": true,
+        "strip_model_prefix": false,
+        "supports_prompt_caching": false
+      },
+      {
+        "name": "deepseek",
+        "display_name": "DeepSeek",
+        "backend": "deepseek",
+        "default_api_base": "https://api.deepseek.com",
+        "api_base_editable": false,
+        "is_gateway": false,
+        "is_local": false,
+        "is_direct": false,
+        "strip_model_prefix": false,
+        "supports_prompt_caching": false
+      }
+    ]
+  }
 }

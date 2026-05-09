@@ -1,4 +1,4 @@
-export const PROTOCOL_VERSION = "0.2.0";
+export const PROTOCOL_VERSION = "0.3.0";
 export const REMOTE_COMMAND_TYPES = [
     "bind_session",
     "send_message",

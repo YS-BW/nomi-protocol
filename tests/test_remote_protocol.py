@@ -12,6 +12,8 @@ from nomi_protocol.remote import (
     PROTOCOL_VERSION,
     REMOTE_COMMAND_TYPES,
     REMOTE_EVENT_TYPES,
+    ProviderCatalog,
+    ProviderCatalogItem,
     RemoteCommand,
     load_remote_protocol_spec,
 )
@@ -79,3 +81,27 @@ def test_examples_use_known_protocol_event_types() -> None:
     for path in examples_root.glob("*.json"):
         payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["type"] in REMOTE_EVENT_TYPES or payload["type"] in REMOTE_COMMAND_TYPES
+
+
+def test_provider_catalog_python_model_accepts_ready_payload_shape() -> None:
+    """provider catalog 模型应能承接 ready 事件里的元数据形状。"""
+
+    catalog = ProviderCatalog(
+        providers=[
+            ProviderCatalogItem(
+                name="custom",
+                display_name="Custom",
+                backend="openai_compat",
+                default_api_base=None,
+                api_base_editable=True,
+                is_gateway=False,
+                is_local=False,
+                is_direct=True,
+                strip_model_prefix=False,
+                supports_prompt_caching=False,
+            )
+        ]
+    )
+
+    assert catalog.providers[0].name == "custom"
+    assert catalog.providers[0].api_base_editable is True

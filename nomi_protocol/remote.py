@@ -58,3 +58,24 @@ class RemoteCommand(StrictBase):
     skill_name: str | None = None
     mcp_name: str | None = None
     mcp: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProviderCatalogItem(StrictBase):
+    """描述一个可供远端 UI 使用的 provider 元数据条目。"""
+
+    name: str
+    display_name: str
+    backend: str
+    default_api_base: str | None = None
+    api_base_editable: bool = False
+    is_gateway: bool = False
+    is_local: bool = False
+    is_direct: bool = False
+    strip_model_prefix: bool = False
+    supports_prompt_caching: bool = False
+
+
+class ProviderCatalog(StrictBase):
+    """描述远端 UI 可见的 provider 元数据目录。"""
+
+    providers: list[ProviderCatalogItem] = Field(default_factory=list)
