@@ -1,11 +1,13 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "remoteCommandTypes": [
     "bind_session",
     "send_message",
     "interrupt_turn",
     "get_status",
     "list_sessions",
+    "create_session",
+    "delete_session",
     "load_history",
     "get_sidebar",
     "task_create_after",
@@ -42,6 +44,8 @@
     "status_result",
     "history_snapshot",
     "session_list",
+    "session_created",
+    "session_deleted",
     "task_delivered",
     "sidebar_snapshot",
     "resource_action_result",

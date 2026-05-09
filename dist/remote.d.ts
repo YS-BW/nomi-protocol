@@ -78,6 +78,13 @@ export interface DesktopSidebarData {
 }
 export interface SessionSummary {
     key: string;
+    session_id: string;
+    title?: string | null;
+    created_at_ms?: number | null;
+    updated_at_ms?: number | null;
+    message_count?: number | null;
+    archived?: boolean | null;
+    source?: string | null;
     created_at?: string;
     updated_at?: string;
     path?: string;
@@ -90,6 +97,10 @@ export interface RemoteCommand {
     metadata?: Record<string, unknown>;
     limit?: number;
     cursor?: number | null;
+    page_token?: string | null;
+    page_size?: number | null;
+    include_archived?: boolean | null;
+    title?: string | null;
     instruction?: string;
     after_seconds?: number;
     at?: string;
@@ -117,10 +128,21 @@ export interface RemoteEvent {
     sessions?: SessionSummary[];
     task_id?: string;
     message?: string;
+    code?: string;
+    command?: string;
     metadata?: Record<string, unknown>;
+    title?: string | null;
+    created_at_ms?: number | null;
+    updated_at_ms?: number | null;
+    message_count?: number | null;
+    archived?: boolean | null;
+    source?: string | null;
+    deleted?: boolean;
     total_messages?: number;
+    total_count?: number | null;
     cursor?: number;
     next_cursor?: number | null;
+    next_page_token?: string | null;
     sidebar?: DesktopSidebarData;
     resource?: string;
     action?: string;

@@ -1,10 +1,12 @@
-export const PROTOCOL_VERSION = "0.1.0";
+export const PROTOCOL_VERSION = "0.2.0";
 export const REMOTE_COMMAND_TYPES = [
     "bind_session",
     "send_message",
     "interrupt_turn",
     "get_status",
     "list_sessions",
+    "create_session",
+    "delete_session",
     "load_history",
     "get_sidebar",
     "task_create_after",
@@ -41,6 +43,8 @@ export const REMOTE_EVENT_TYPES = [
     "status_result",
     "history_snapshot",
     "session_list",
+    "session_created",
+    "session_deleted",
     "task_delivered",
     "sidebar_snapshot",
     "resource_action_result",

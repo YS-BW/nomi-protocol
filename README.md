@@ -37,13 +37,13 @@ npm run build
 Python：
 
 ```bash
-pip install "nomi-protocol @ git+https://github.com/YS-BW/nomi-protocol.git@v0.1.0"
+pip install "nomi-protocol @ git+https://github.com/YS-BW/nomi-protocol.git@v0.2.0"
 ```
 
 Node.js：
 
 ```bash
-npm install github:YS-BW/nomi-protocol#v0.1.0
+npm install github:YS-BW/nomi-protocol#v0.2.0
 ```
 
 ## 发布约定

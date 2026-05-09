@@ -43,6 +43,10 @@ class RemoteCommand(StrictBase):
     metadata: dict[str, Any] = Field(default_factory=dict)
     limit: int | None = None
     cursor: int | None = None
+    page_token: str | None = None
+    page_size: int | None = None
+    include_archived: bool | None = None
+    title: str | None = None
     instruction: str | None = None
     after_seconds: int | None = None
     at: str | None = None
