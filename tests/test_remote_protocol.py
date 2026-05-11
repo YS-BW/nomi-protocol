@@ -12,8 +12,12 @@ from nomi_protocol.remote import (
     PROTOCOL_VERSION,
     REMOTE_COMMAND_TYPES,
     REMOTE_EVENT_TYPES,
+    ActiveProviderSelection,
     ProviderCatalog,
     ProviderCatalogItem,
+    ProviderFieldError,
+    ProviderStateItem,
+    ProviderStateSnapshot,
     RemoteCommand,
     load_remote_protocol_spec,
 )
@@ -105,3 +109,61 @@ def test_provider_catalog_python_model_accepts_ready_payload_shape() -> None:
 
     assert catalog.providers[0].name == "custom"
     assert catalog.providers[0].api_base_editable is True
+
+
+def test_provider_state_python_models_accept_ready_payload_shape() -> None:
+    """provider state 模型应能承接 ready 事件里的运行态配置形状。"""
+
+    snapshot = ProviderStateSnapshot(
+        providers=[
+            ProviderStateItem(
+                provider="deepseek",
+                display_name="DeepSeek",
+                backend="deepseek",
+                builtin=True,
+                editable=True,
+                deletable=False,
+                api_key_set=True,
+                api_key_preview="…3688",
+                saved_model="deepseek-chat",
+                api_base="https://api.deepseek.com",
+                api_base_editable=False,
+                default_api_base="https://api.deepseek.com",
+                source="config",
+            )
+        ],
+        active=ActiveProviderSelection(
+            provider="deepseek",
+            model="deepseek-chat",
+        ),
+        apply_mode="reload_runtime",
+    )
+
+    assert snapshot.providers[0].provider == "deepseek"
+    assert snapshot.active.model == "deepseek-chat"
+
+
+def test_remote_command_accepts_update_provider_clear_api_key_shape() -> None:
+    """update_provider 应支持 clear_api_key 字段。"""
+
+    command = RemoteCommand(
+        type="update_provider",
+        provider="custom",
+        clear_api_key=True,
+    )
+
+    assert command.type == "update_provider"
+    assert command.clear_api_key is True
+
+
+def test_provider_field_error_model_accepts_field_level_validation_shape() -> None:
+    """字段级错误模型应能承接 provider 设置校验结果。"""
+
+    payload = ProviderFieldError(
+        field="api_base",
+        code="not_editable",
+        message="api_base is read-only for this provider",
+    )
+
+    assert payload.field == "api_base"
+    assert payload.code == "not_editable"

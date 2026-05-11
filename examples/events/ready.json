@@ -29,5 +29,28 @@
         "supports_prompt_caching": false
       }
     ]
+  },
+  "provider_state": {
+    "providers": [
+      {
+        "provider": "custom",
+        "api_key_set": false,
+        "api_key_preview": null,
+        "saved_model": null,
+        "api_base": null
+      },
+      {
+        "provider": "deepseek",
+        "api_key_set": true,
+        "api_key_preview": "…3688",
+        "saved_model": "deepseek-chat",
+        "api_base": "https://api.deepseek.com"
+      }
+    ],
+    "active": {
+      "provider": "deepseek",
+      "model": "deepseek-chat"
+    },
+    "apply_mode": "reload_runtime"
   }
 }

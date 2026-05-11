@@ -57,6 +57,41 @@ export interface ProviderCatalog {
   providers: ProviderCatalogItem[];
 }
 
+export interface ProviderFieldError {
+  field: string;
+  code: string;
+  message: string;
+}
+
+export interface ProviderStateItem {
+  provider: string;
+  display_name?: string | null;
+  backend?: string | null;
+  builtin?: boolean;
+  editable?: boolean;
+  deletable?: boolean;
+  api_key_set: boolean;
+  api_key_preview?: string | null;
+  saved_model?: string | null;
+  api_base?: string | null;
+  api_base_editable?: boolean;
+  default_api_base?: string | null;
+  source?: string | null;
+}
+
+export interface ActiveProviderSelection {
+  provider: string;
+  model: string;
+}
+
+export interface ProviderStateSnapshot {
+  providers: ProviderStateItem[];
+  active: ActiveProviderSelection;
+  apply_mode: "reload_runtime";
+}
+
+export type ProviderListSnapshot = ProviderStateSnapshot;
+
 export interface MessageItem {
   id: string;
   kind: MessageKind;
@@ -158,6 +193,11 @@ export interface RemoteCommand {
   skill_name?: string;
   mcp_name?: string;
   mcp?: Record<string, unknown>;
+  provider?: string;
+  api_key?: string | null;
+  api_base?: string | null;
+  model?: string | null;
+  clear_api_key?: boolean | null;
 }
 
 export interface RemoteEvent {
@@ -167,6 +207,8 @@ export interface RemoteEvent {
   host?: string;
   port?: number;
   provider_catalog?: ProviderCatalog;
+  provider_state?: ProviderStateSnapshot;
+  provider_list?: ProviderListSnapshot;
   tool_hint?: boolean;
   resuming?: boolean;
   stop_reason?: string;
@@ -178,7 +220,13 @@ export interface RemoteEvent {
   message?: string;
   code?: string;
   command?: string;
+  fields?: ProviderFieldError[];
   metadata?: Record<string, unknown>;
+  provider?: string;
+  settings?: ProviderStateItem;
+  active?: ActiveProviderSelection;
+  apply_mode?: "reload_runtime";
+  requires_runtime_reload?: boolean;
   title?: string | null;
   created_at_ms?: number | null;
   updated_at_ms?: number | null;

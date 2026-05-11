@@ -1,10 +1,11 @@
-export const PROTOCOL_VERSION = "0.3.0";
+export const PROTOCOL_VERSION = "0.5.0";
 
 export const REMOTE_COMMAND_TYPES = [
   "bind_session",
   "send_message",
   "interrupt_turn",
   "get_status",
+  "list_providers",
   "list_sessions",
   "create_session",
   "delete_session",
@@ -29,6 +30,11 @@ export const REMOTE_COMMAND_TYPES = [
   "mcp_delete",
   "mcp_enable",
   "mcp_disable",
+  "get_provider_state",
+  "set_provider_settings",
+  "update_provider",
+  "set_active_provider",
+  "reload_runtime",
   "clear_remote_runtime",
 ] as const;
 
@@ -50,5 +56,11 @@ export const REMOTE_EVENT_TYPES = [
   "task_delivered",
   "sidebar_snapshot",
   "resource_action_result",
+  "provider_state_snapshot",
+  "provider_list",
+  "provider_settings_updated",
+  "provider_updated",
+  "active_provider_changed",
+  "runtime_reloaded",
   "error",
 ] as const;

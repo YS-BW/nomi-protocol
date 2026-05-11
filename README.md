@@ -12,7 +12,11 @@
 当前额外约定：
 
 - `ready` 事件会携带 `provider_catalog`
+- `ready` 事件还会携带 `provider_state`
+- `list_providers` 会返回完整 provider 管理列表
+- `update_provider` 是 provider 配置写回入口
 - desktop 应使用这份 catalog 决定 provider 设置页的只读/可编辑状态
+- provider 设置页的当前值和 active provider/model 由 core 通过 `provider_state` 提供
 
 当前不包含：
 
@@ -42,13 +46,13 @@ npm run build
 Python：
 
 ```bash
-pip install "nomi-protocol @ git+https://github.com/YS-BW/nomi-protocol.git@v0.3.0"
+pip install "nomi-protocol @ git+https://github.com/YS-BW/nomi-protocol.git@v0.5.0"
 ```
 
 Node.js：
 
 ```bash
-npm install github:YS-BW/nomi-protocol#v0.3.0
+npm install github:YS-BW/nomi-protocol#v0.5.0
 ```
 
 ## 发布约定
