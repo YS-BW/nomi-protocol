@@ -1,4 +1,4 @@
-"""共享 remote 协议层测试。"""
+"""共享 remote vNext 协议层测试。"""
 
 from __future__ import annotations
 
@@ -8,18 +8,19 @@ from pathlib import Path
 
 import pytest
 
-from nomi_protocol.remote import (
-    PROTOCOL_VERSION,
-    REMOTE_COMMAND_TYPES,
-    REMOTE_EVENT_TYPES,
+from nomi_protocol import HTTP_ROUTES, PROTOCOL_VERSION, SSE_EVENT_TYPES
+from nomi_protocol.events import SseEventEnvelope
+from nomi_protocol.http import CreateTaskRequest, CreateTurnRequest
+from nomi_protocol.remote import load_remote_protocol_spec
+from nomi_protocol.shared import (
     ActiveProviderSelection,
+    ApiErrorResponse,
     ProviderCatalog,
     ProviderCatalogItem,
     ProviderFieldError,
     ProviderStateItem,
     ProviderStateSnapshot,
-    RemoteCommand,
-    load_remote_protocol_spec,
+    TaskSchedule,
 )
 
 
@@ -39,8 +40,8 @@ def test_remote_protocol_spec_matches_python_contract() -> None:
     spec = load_remote_protocol_spec()
 
     assert PROTOCOL_VERSION == spec["version"]
-    assert list(REMOTE_COMMAND_TYPES) == spec["remoteCommandTypes"]
-    assert list(REMOTE_EVENT_TYPES) == spec["remoteEventTypes"]
+    assert list(HTTP_ROUTES) == spec["httpRoutes"]
+    assert list(SSE_EVENT_TYPES) == spec["sseEventTypes"]
 
 
 def test_repo_root_and_python_package_spec_stay_in_sync() -> None:
@@ -59,36 +60,97 @@ def test_remote_protocol_spec_matches_typescript_contract() -> None:
 
     spec = load_remote_protocol_spec()
 
-    assert _read_typescript_const_array("REMOTE_COMMAND_TYPES") == spec["remoteCommandTypes"]
-    assert _read_typescript_const_array("REMOTE_EVENT_TYPES") == spec["remoteEventTypes"]
+    assert _read_typescript_const_array("HTTP_ROUTES") == spec["httpRoutes"]
+    assert _read_typescript_const_array("SSE_EVENT_TYPES") == spec["sseEventTypes"]
 
 
-def test_remote_command_accepts_all_known_command_types() -> None:
-    """所有共享命令类型都应能通过 Python 命令模型校验。"""
+def test_http_routes_cover_required_v1_surface() -> None:
+    """vNext HTTP 路由应覆盖当前 remote 管理面。"""
 
-    for command_type in REMOTE_COMMAND_TYPES:
-        command = RemoteCommand(type=command_type)
-        assert command.type == command_type
+    required = {
+        "GET /v1/bootstrap",
+        "POST /v1/sessions/{session_id}/turns",
+        "POST /v1/tasks",
+        "PUT /v1/providers/active",
+        "POST /v1/runtime/reload",
+        "GET /v1/events",
+    }
+
+    assert required.issubset(set(HTTP_ROUTES))
 
 
-def test_remote_command_rejects_unknown_command_type() -> None:
-    """未知命令类型不应通过 Python 命令模型校验。"""
+def test_sse_event_types_cover_session_and_turn_stream() -> None:
+    """SSE 事件应覆盖跨 channel session 和 turn 实时更新。"""
+
+    required = {
+        "session.message_appended",
+        "session.updated",
+        "turn.started",
+        "turn.delta",
+        "turn.completed",
+        "task.delivered",
+    }
+
+    assert required.issubset(set(SSE_EVENT_TYPES))
+
+
+def test_create_task_request_accepts_global_target_channels_default() -> None:
+    """target_channels 省略时应按全局提醒处理。"""
+
+    request = CreateTaskRequest(
+        instruction="明早提醒我量体重",
+        schedule=TaskSchedule(kind="cron", expr="0 9 * * *", tz="Asia/Shanghai"),
+        source_session_key="desktop:test",
+    )
+
+    assert request.target_channels == []
+
+
+def test_create_turn_request_rejects_unknown_fields() -> None:
+    """HTTP schema 应保持严格字段校验。"""
 
     with pytest.raises(Exception):
-        RemoteCommand(type="unknown-command")
+        CreateTurnRequest.model_validate({"content": "hello", "unexpected": True})
 
 
-def test_examples_use_known_protocol_event_types() -> None:
-    """示例 payload 的事件类型应来自共享协议集合。"""
+def test_legacy_remote_command_models_are_not_exported() -> None:
+    """vNext 不应继续导出旧 command/event 模型。"""
 
-    examples_root = Path("examples/events")
-    for path in examples_root.glob("*.json"):
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        assert payload["type"] in REMOTE_EVENT_TYPES or payload["type"] in REMOTE_COMMAND_TYPES
+    import nomi_protocol.remote as remote
+
+    assert not hasattr(remote, "RemoteCommand")
+    assert not hasattr(remote, "RemoteEvent")
 
 
-def test_provider_catalog_python_model_accepts_ready_payload_shape() -> None:
-    """provider catalog 模型应能承接 ready 事件里的元数据形状。"""
+def test_sse_event_envelope_accepts_known_event_type() -> None:
+    """SSE envelope 应能校验已知事件类型。"""
+
+    event = SseEventEnvelope(
+        id="evt_test",
+        type="session.message_appended",
+        created_at_ms=1,
+        data={"session_id": "weixin:test"},
+    )
+
+    assert event.type == "session.message_appended"
+
+
+def test_api_error_response_shape() -> None:
+    """统一错误模型应保持稳定。"""
+
+    error = ApiErrorResponse(
+        error={
+            "code": "session_not_found",
+            "message": "session not found",
+            "details": {"session_id": "desktop:test"},
+        }
+    )
+
+    assert error.error.code == "session_not_found"
+
+
+def test_provider_catalog_python_model_accepts_bootstrap_payload_shape() -> None:
+    """provider catalog 模型应能承接 bootstrap 里的元数据形状。"""
 
     catalog = ProviderCatalog(
         providers=[
@@ -111,8 +173,8 @@ def test_provider_catalog_python_model_accepts_ready_payload_shape() -> None:
     assert catalog.providers[0].api_base_editable is True
 
 
-def test_provider_state_python_models_accept_ready_payload_shape() -> None:
-    """provider state 模型应能承接 ready 事件里的运行态配置形状。"""
+def test_provider_state_python_models_accept_bootstrap_payload_shape() -> None:
+    """provider state 模型应能承接 bootstrap 里的运行态配置形状。"""
 
     snapshot = ProviderStateSnapshot(
         providers=[
@@ -141,19 +203,6 @@ def test_provider_state_python_models_accept_ready_payload_shape() -> None:
 
     assert snapshot.providers[0].provider == "deepseek"
     assert snapshot.active.model == "deepseek-chat"
-
-
-def test_remote_command_accepts_update_provider_clear_api_key_shape() -> None:
-    """update_provider 应支持 clear_api_key 字段。"""
-
-    command = RemoteCommand(
-        type="update_provider",
-        provider="custom",
-        clear_api_key=True,
-    )
-
-    assert command.type == "update_provider"
-    assert command.clear_api_key is True
 
 
 def test_provider_field_error_model_accepts_field_level_validation_shape() -> None:

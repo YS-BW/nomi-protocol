@@ -1,6 +1,6 @@
 {
   "name": "nomi-protocol",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": false,
   "type": "module",
   "files": [
@@ -12,6 +12,18 @@
     ".": {
       "types": "./dist/remote.d.ts",
       "default": "./dist/remote.js"
+    },
+    "./shared": {
+      "types": "./dist/shared.d.ts",
+      "default": "./dist/shared.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "default": "./dist/http.js"
+    },
+    "./events": {
+      "types": "./dist/events.d.ts",
+      "default": "./dist/events.js"
     },
     "./remote_protocol.json": "./remote_protocol.json"
   },
